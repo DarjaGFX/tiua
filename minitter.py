@@ -17,7 +17,6 @@ class tweet(Document):
     timestamp  = FloatField(required = True)
     text       = StringField(required = True)
     is_reply   = BooleanField(required = True)
-    in_reply_to_status_id  = ObjectIdField()
     is_quote   = BooleanField(required = True)
     is_retweet = BooleanField(required = True)
     entities   = DictField(ListField())

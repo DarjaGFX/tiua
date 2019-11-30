@@ -61,6 +61,7 @@ def add_user_tweet(list_of_jsons):
                     entities    = tweet_json['entities']
                 )
                 twt.save()
+                
                 ### feedback
                 if tweet_json['in_reply_to_status_id']!=None:
                     react = twt
