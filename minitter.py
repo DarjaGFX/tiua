@@ -8,9 +8,9 @@ class User(Document):
         """
         interval should be in miliseconds.
         """
-        if start = None :
+        if start == None :
             return tweet.objects.filter(user = self)
-        if interval = None :
+        if interval == None :
             return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start))
         return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start) & Q(timestamp__lte=start+interval))
 

@@ -115,7 +115,7 @@ for path in ROOT_DIRECTORIES:
         b = bz2.decompress(open(full_name,'rb').read())
         b = b.decode()
         b = b.split('\n')
-        print('{}/{} \t|\t-adding {} of {}\t | \t {} %\t | \t {}% of total. {}'.format(
+        print('{}/{} \t|\tadding {} of {}\t | \t {} %\t | \t {}% of total. {}'.format(
                 __,
                 len(ROOT_DIRECTORIES),
                 _,
