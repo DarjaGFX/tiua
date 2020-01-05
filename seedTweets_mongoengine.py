@@ -59,7 +59,7 @@ def add_user_tweet(list_of_jsons):
                     timestamp   = pd.to_datetime(tweet_json['created_at']).timestamp(),
                     text        = tweet_json['text'],
                     is_reply    = tweet_json['in_reply_to_status_id']!=None,
-                    is_quote    = re.match(r'.+ RT @.+:.+',tweet_json['text']) != None,
+                    is_quote    = re.match(r'.+ RT @\w+: .+',tweet_json['text']) != None,
                     is_retweet  = 'retweeted_status' in tweet_json,
                     entities    = tweet_json['entities']
                 )
@@ -75,19 +75,10 @@ def add_user_tweet(list_of_jsons):
                     react= react,
                     actype= RETWEET
                     ).save()
-                ###### Reply
-                if twt.is_reply:
-                    react = twt
-                    target = mt.tweet.objects.filter(Id= int(tweet_json['in_reply_to_status_id'])).get()
-                    mt.feedback(
-                        target= target,
-                        react= react,
-                        actype= REPLY
-                    ).save()
                 ###### Qoute
-                if twt.is_quote:
+                elif twt.is_quote:
                     react = twt
-                    sn_pattern = r'.+ RT @(\w+):.+'
+                    sn_pattern = r'.+ RT @(\w+): .+'
                     sn = re.findall(sn_pattern,twt.text)
                     sn = sn[0]
                     tt_pattern = r'.+ RT @\w+: (.+)'
@@ -99,6 +90,15 @@ def add_user_tweet(list_of_jsons):
                     target= target,
                     react= react,
                     actype= QOUTE
+                    ).save()
+                ###### Reply
+                if twt.is_reply:
+                    react = twt
+                    target = mt.tweet.objects.filter(Id= int(tweet_json['in_reply_to_status_id'])).get()
+                    mt.feedback(
+                        target= target,
+                        react= react,
+                        actype= REPLY
                     ).save()
             except:
                 pass
