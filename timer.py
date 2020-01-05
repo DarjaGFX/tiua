@@ -17,8 +17,8 @@ def printlog():
     DURATION = END - START
     print(END)
     s = DURATION.seconds
-    DAY = (s//3600)//24
-    HOUR = (s//3600) - (DAY*24)
-    MINUTE = (s//60) - (HOUR*60) - (DAY*24*60)
-    SECOND = s - (MINUTE*60 + HOUR*3600 + DAY*24*3600)
+    SECOND = s % 60
+    MINUTE = (s//60) % 60
+    HOUR = (s//3600) % 24
+    DAY = (s//86400)
     print('it takes you {}:{}:{}\':{}" to run this script.'.format(DAY, HOUR, MINUTE, SECOND))
