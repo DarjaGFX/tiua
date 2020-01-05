@@ -43,3 +43,10 @@ class feedback(Document):
     target  =   ReferenceField(tweet,required=True)
     react   =   ReferenceField(tweet,required=True)
     actype  =   IntField(required=True)
+
+class TInfluence(Document):
+    tweet = ReferenceField(tweet, unique = True, required=True)
+    sf_reply = IntField(required = True)
+    sf_retweet = IntField(required = True)
+    sf_qoute = IntField(required = True)
+    sf_similarities = IntField(required = True)

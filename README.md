@@ -27,6 +27,8 @@
 *seedTweets_mongoengine => searches for tweets in given directories, adds tweets and tweet's publisher user to database if user id is in "base_ids.npy" and user speaks ENGLISH!
 """
 
+*seedUsers => creates following graph of users that exists in database using "twitter_rv.net"
+
 1 - Modify Settings.py (PATH and DIRECTORIES)
     {
         ### Database Name
@@ -52,3 +54,5 @@
 2 - Run loadBaseUsers.py
 
 3 - Run seedTweets_mongoengine.py
+
+4 - Run seedUsers.py
