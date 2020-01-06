@@ -3,6 +3,7 @@ import minitter as mt
 from Settings import *
 
 connect(DBNAME)
+total = 1468211496
 
 # GRAPH_PATH
 # EXISTING_IDS_PATH
@@ -58,6 +59,7 @@ def checkUsers(u1, u2):
 
 r = open(GRAPH_PATH, 'r')
 line = r.readline()
+_ = 1
 while line:
     try:
         i2d = line.split("\t")
@@ -68,4 +70,6 @@ while line:
     except:
         continue
 
+    print('\r line {} of {} | {}%{}'.format(_,total , _*100/total,' '*10),end='\r')
+    _ += 1
 r.close()
