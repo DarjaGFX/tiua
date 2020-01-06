@@ -11,8 +11,8 @@ class User(Document):
         if start == None :
             return tweet.objects.filter(user = self)
         if interval == None :
-            return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start))
-        return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start) & Q(timestamp__lte=start+interval))
+            return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start) & Q(is_reply=False) & Q(is_quote=False) & Q(is_retweet=False))
+        return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start) & Q(timestamp__lte=start+interval) & Q(is_reply=False) & Q(is_quote=False) & Q(is_retweet=False))
 
     def followers(self):
         return follows.objects.filter(followee= self)
