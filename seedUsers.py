@@ -47,25 +47,34 @@ def checkUsers(u1, u2):
     try:
         user1 = mt.User.objects.filter(Id = u1).get()
     except:
-        return
+        return False
     try:
         user2 = mt.User.objects.filter(Id = u2).get()
     except:
-        return
+        return True
     mt.follows(
         followee= user1,
         follower= user2
     ).save()
+    return True
 
 r = open(GRAPH_PATH, 'r')
 line = r.readline()
 _ = 1
+##### avoid IO #####
+lastUser = None
+lastState = True
+##### & SpeedUp #####
 while line:
     try:
         i2d = line.split("\t")
         id1 = i2d[0].replace('\n','')
         id2 = i2d[1].replace('\n','')
-        checkUsers(int(id1), int(id2))
+        if lastUser == id1:
+            if not lastState:
+                continue
+        lastUser = id1
+        lastState = checkUsers(int(id1), int(id2))
         line = r.readline()
     except:
         continue
