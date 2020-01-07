@@ -44,40 +44,49 @@ def checkUsers(u1, u2):
     """
     gets followee and follower, checks if they exist in database, then create/update them
     """
-    try:
-        user1 = mt.User.objects.filter(Id = u1).get()
-    except:
-        return False
+    if type(u1) == int:
+        try:
+            user1 = mt.User.objects.filter(Id = u1).get()
+        except:
+            return False
+    elif type(u1) == mt.User:
+        user1 = u1
     try:
         user2 = mt.User.objects.filter(Id = u2).get()
     except:
-        return True
+        return user1
     mt.follows(
         followee= user1,
         follower= user2
     ).save()
-    return True
+    return user1
 
 r = open(GRAPH_PATH, 'r')
 line = r.readline()
 _ = 1
 ##### avoid IO #####
-lastUser = None
-lastState = True
+lastId = None
+user1 = False
 ##### & SpeedUp #####
 while line:
     try:
         i2d = line.split("\t")
         id1 = i2d[0].replace('\n','')
         id2 = i2d[1].replace('\n','')
-        if lastUser == id1:
-            if not lastState:
+        if lastId == id1:
+            if user1 == False:
                 continue
-        lastUser = id1
-        lastState = checkUsers(int(id1), int(id2))
-        line = r.readline()
+            else:
+                checkUsers(user1, int(id2))
+        else:
+            user1 = checkUsers(int(id1), int(id2))
+            lastId = id1
     except:
         continue
+    try:
+        line = r.readline()
+    except:
+        break
 
     print('\r line {} of {} | {}%{}'.format(_,total , _*100/total,' '*10),end='\r')
     _ += 1
