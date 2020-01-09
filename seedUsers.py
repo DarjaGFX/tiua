@@ -48,8 +48,9 @@ def checkUsers(u1, u2):
         try:
             user1 = mt.User.objects.filter(Id = u1).get()
         except:
-            return False
-    elif type(u1) == mt.User:
+
+            return None
+    else:
         user1 = u1
     try:
         user2 = mt.User.objects.filter(Id = u2).get()
@@ -66,7 +67,7 @@ line = r.readline()
 _ = 1
 ##### avoid IO #####
 lastId = None
-user1 = False
+user1 = None
 ##### & SpeedUp #####
 while line:
     try:
@@ -74,15 +75,15 @@ while line:
         id1 = i2d[0].replace('\n','')
         id2 = i2d[1].replace('\n','')
         if lastId == id1:
-            if user1 == False:
-                continue
+            if not user1:
+                pass
             else:
                 checkUsers(user1, int(id2))
         else:
             user1 = checkUsers(int(id1), int(id2))
             lastId = id1
     except:
-        continue
+        pass
     try:
         line = r.readline()
     except:
