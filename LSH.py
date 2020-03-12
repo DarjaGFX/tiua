@@ -1,6 +1,8 @@
 import numpy as np
 from PermutationHashFunctions import *
 
+HASHFUNCTIONS = [H1 , H2]
+
 def shingler(Document= None , k = 1):
     if Document is None or k < 1:
         return None
@@ -9,8 +11,6 @@ def shingler(Document= None , k = 1):
         for i in range(len(Document)-k+1):
             res.add(Document[i:i+k])
         return res
-
-HASHFUNCTIONS = [H1 , H2]
 
 def MinHasher(*sets):
     """
@@ -35,7 +35,7 @@ def MinHasher(*sets):
                 return None
         except:
             return None
-    lineNumber = [x for x in range(l)]
+    lineNumber = list(range(l))
     Signature = [l for x in range(len(HASHFUNCTIONS))]
     Signatures = [Signature for x in range(len(sets))]
     Signatures = np.array(Signatures)
@@ -50,6 +50,7 @@ def MinHasher(*sets):
                         Signatures[j,x] = PermutedOrder[x]
 
     return Signatures
+
 
 a = [1,0,1,1,0]
 b = [0,1,1,0,1]
