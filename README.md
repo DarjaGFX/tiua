@@ -56,3 +56,5 @@
 3 - Run seedTweets_mongoengine.py
 
 4 - Run seedUsers.py
+
+5 - RUN influator.py(or multinfluator for more speed!)
