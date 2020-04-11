@@ -4,6 +4,7 @@ class User(Document):
     Id             = IntField(unique = True, required = True)
     screen_name    = StringField(unique = True, required = True)
 
+
     def tweets(self, start= None, interval= None):
         """
         interval should be in miliseconds.
@@ -14,8 +15,13 @@ class User(Document):
             return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start) & Q(is_reply=False) & Q(is_quote=False) & Q(is_retweet=False))
         return tweet.objects.filter(Q(user = self) & Q(timestamp__gte=start) & Q(timestamp__lte=start+interval) & Q(is_reply=False) & Q(is_quote=False) & Q(is_retweet=False))
 
+
     def followers(self):
-        return follows.objects.filter(followee= self)
+        return [ x.follower for x in follows.objects.filter(followee= self)]
+
+
+    def LenFollowers(self):
+        return follows.objects.filter(followee= self).count()
 
 class tweet(Document):
     Id         = IntField(unique = True , required = True)
