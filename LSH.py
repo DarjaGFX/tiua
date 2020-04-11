@@ -1,9 +1,11 @@
 import numpy as np
-from PermutationHashFunctions import *
+from random import randint
 
-HASHFUNCTIONS = [H1 , H2]
+HASHCOUNT = 200
+THREASHOLD = 0.6
 
-def shingler(Document= None , k = 1):
+
+def shingler(Document=None, k=1):
     if Document is None or k < 1:
         return None
     else:
@@ -11,6 +13,7 @@ def shingler(Document= None , k = 1):
         for i in range(len(Document)-k+1):
             res.add(Document[i:i+k])
         return res
+
 
 def MinHasher(*sets):
     """
@@ -35,25 +38,48 @@ def MinHasher(*sets):
                 return None
         except:
             return None
+
     lineNumber = list(range(l))
-    Signature = [l for x in range(len(HASHFUNCTIONS))]
+    HashOrders = [set(lineNumber) for x in range(HASHCOUNT)]
+    Signature = [l for x in range(HASHCOUNT)]
     Signatures = [Signature for x in range(len(sets))]
     Signatures = np.array(Signatures)
     for i in lineNumber:
         PermutedOrder = []
-        for h in HASHFUNCTIONS:
-            PermutedOrder.append(h(i))
-        for j,s in enumerate(sets):
+        for h in range(HASHCOUNT):
+            ind = randint(0, len(HashOrders[h])-1)
+            order = list(HashOrders[h])[ind]
+            HashOrders[h].remove(order)
+            PermutedOrder.append(order)
+        for j, s in enumerate(sets):
             if s[i] == 1:
-                for x in range(len(HASHFUNCTIONS)):
-                    if Signatures[j,x] > PermutedOrder[x]:
-                        Signatures[j,x] = PermutedOrder[x]
+                for x in range(HASHCOUNT):
+                    if Signatures[j][x] > PermutedOrder[x]:
+                        Signatures[j][x] = PermutedOrder[x]
 
     return Signatures
 
 
-a = [1,0,1,1,0]
-b = [0,1,1,0,1]
+def LSH(*sets, bands=1):
+    if len(sets[0]) % bands != 0:
+        raise ValueError("bands can't be {}".format(bands))
 
-for i,j in enumerate(MinHasher(a,b)):
-    print('set{}'.format(i), j)
+    buckets = set()
+    r = len(sets[0])/bands
+    for b in range(bands):
+        low = int(b*r)
+        up = int((b+1)*r)
+        if type(low) != int or type(up) != int:
+            print(type(low))
+            print(type(up))
+        for fs in range(len(sets)-1):
+            for ss in range(fs+1, len(sets)):
+                if {ss, fs} in buckets:
+                    continue
+                shared = 0
+                for i in range(low, up):
+                    if sets[fs][i] == sets[ss][i]:
+                        shared += 1
+                if float(shared)/r >= THREASHOLD:
+                    buckets.add(frozenset({fs, ss}))
+    return buckets
