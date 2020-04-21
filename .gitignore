@@ -1,0 +1,4 @@
+*.pyc
+.ftpconfig
+*.json
+__pycache__

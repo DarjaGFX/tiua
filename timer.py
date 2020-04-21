@@ -9,11 +9,11 @@ class Timer():
         self.step = 0
 
     def start(self):
-        self.START = datetime.utcnow()
+        self.START = datetime.now()
         print(self.START)
 
     def end(self):
-        self.END = datetime.utcnow()
+        self.END = datetime.now()
         print(self.END)
 
     def s2d(self, seconds):
@@ -30,8 +30,8 @@ class Timer():
         use printlog()
         """
         DURATION = self.END - self.START
-        print(END)
-        s = DURATION.seconds
+        print(self.END)
+        s = DURATION.total_seconds()
         DAY, HOUR, MINUTE, SECOND = self.s2d(s)
         print('it takes you {}:{}:{}\':{}" to run this script.'.format(DAY, HOUR, MINUTE, SECOND))
 
@@ -46,7 +46,7 @@ class Timer():
         use loading()
         """
         percent = self.step*100/self._total
-        now = datetime.utcnow()
+        now = datetime.now()
         passed = now - self.START
         passed = int(passed.total_seconds())
         if percent != 0:
@@ -58,4 +58,4 @@ class Timer():
         DAY1, HOUR, MINUTE, SECOND = self.s2d(passed)
         ET = '{}:{}:{}:{}'.format(DAY1, HOUR, MINUTE, SECOND)
         print('\r {}'.format(' '*120), end='\r')
-        print('\r{} of {} | {}% \tET:{} \tETA:{} {}'.format(self.step, self._total, percent, ET, ETA, ' '*10), end='\r')
+        print('\r{:,} of {:,} | {:.4f}% \tET:{} \tETA:{} {}'.format(self.step, self._total, percent, ET, ETA, ' '*10), end='\r')

@@ -2,17 +2,25 @@ import numpy as np
 from random import randint
 
 HASHCOUNT = 200
-THREASHOLD = 0.6
+THREASHOLD = 0.40
 
 
-def shingler(Document=None, k=1):
+def shingler(Document=None, k=1, Type='char'):
+    """
+    turn `Document` into its SHINGLES
+    `Type` can be `char` or `word`
+    """
+    res = set()
     if Document is None or k < 1:
         return None
-    else:
-        res = set()
+    elif Type == 'char':
         for i in range(len(Document)-k+1):
             res.add(Document[i:i+k])
-        return res
+    elif Type == 'word':
+        docset = Document.split()
+        for i in range(len(docset)-k+1):
+            res.add(' '.join(docset[i:i+k]))
+    return res
 
 
 def MinHasher(*sets):
@@ -29,43 +37,68 @@ def MinHasher(*sets):
     """
     try:
         t = type(sets[0])
-        l = len(sets[0])
+        set_length = len(sets[0])
     except:
         return None
     for i in sets:
         try:
-            if type(i) != t or len(i) != l:
+            if type(i) != t or len(i) != set_length:
                 return None
         except:
             return None
-
-    lineNumber = list(range(l))
-    HashOrders = [set(lineNumber) for x in range(HASHCOUNT)]
-    Signature = [l for x in range(HASHCOUNT)]
-    Signatures = [Signature for x in range(len(sets))]
-    Signatures = np.array(Signatures)
-    for i in lineNumber:
-        PermutedOrder = []
-        for h in range(HASHCOUNT):
-            ind = randint(0, len(HashOrders[h])-1)
-            order = list(HashOrders[h])[ind]
-            HashOrders[h].remove(order)
-            PermutedOrder.append(order)
+    Signatures = np.ones([len(sets), HASHCOUNT])*set_length
+    for i in range(set_length):
+        PermutedOrder = np.ndarray.tolist(np.random.permutation(set_length))
         for j, s in enumerate(sets):
             if s[i] == 1:
                 for x in range(HASHCOUNT):
+                    print("{:,} of {:,}".format((i*len(sets)*HASHCOUNT)+(j*HASHCOUNT)+x, len(sets)*HASHCOUNT*set_length), end='\r')
                     if Signatures[j][x] > PermutedOrder[x]:
                         Signatures[j][x] = PermutedOrder[x]
-
+    print('\n')
     return Signatures
+
+
+def finalize_buckets(lv):
+    final_buckets = set()
+    while len(lv) > 0:
+        tmp = set()
+        lst = list(lv)
+        for i in lst[0]:
+            tmp.add(i)
+        lv.remove(lst[0])
+        doubleCheckFlag = 0
+        while len(lv) > 0:
+            if doubleCheckFlag >= 2:
+                break
+            changeFlag = False
+            remove_candidate = None
+            break_flag = False
+            for item in lv:
+                for element in item:
+                    if element in tmp:
+                        for i in item:
+                            tmp.add(i)
+                        remove_candidate = item
+                        changeFlag = not changeFlag
+                        break_flag = True
+                        break
+                if break_flag:
+                    break
+            if break_flag:
+                lv.remove(remove_candidate)
+            if not changeFlag:
+                doubleCheckFlag += 1
+        final_buckets.add(frozenset(tmp))
+    return final_buckets
 
 
 def LSH(*sets, bands=1):
     if len(sets[0]) % bands != 0:
-        raise ValueError("bands can't be {}".format(bands))
+        raise ValueError(f"bands can't be {bands} while hashCount is {len(sets[0])}")
 
     buckets = set()
-    r = len(sets[0])/bands
+    r = int(len(sets[0])/bands)
     for b in range(bands):
         low = int(b*r)
         up = int((b+1)*r)
@@ -82,4 +115,39 @@ def LSH(*sets, bands=1):
                         shared += 1
                 if float(shared)/r >= THREASHOLD:
                     buckets.add(frozenset({fs, ss}))
-    return buckets
+    return finalize_buckets(buckets)
+
+
+def LSH_Value(*sets, k=1, Type='char', bands=1, HashCount=HASHCOUNT, bucket_Similarity_Threashold=0.8):
+    import datetime  # ##################################### test
+    print(datetime.datetime.now())  # ##################################### test
+    global HASHCOUNT
+    HASHCOUNT = HashCount
+    global THREASHOLD
+    THREASHOLD = bucket_Similarity_Threashold
+    # get shingls for all Docs
+    print("START SHINGLING...")
+    shingl = [shingler(i, k, Type) for i in sets]
+    print("SHINGLING FINISHED.")
+    # feeding MinHasher
+    print("START FEEDING MINHASHER...")
+    unin = set()
+    for i in shingl:
+        unin.update(i)
+    print(f"vector size: {len(unin)}")  # ############################## test
+    s = [[] for i in shingl]
+    for i in unin:
+        for indx, sh in enumerate(shingl):
+            if i in sh:
+                s[indx].append(1)
+            else:
+                s[indx].append(0)
+    print('START MINHASHING...')
+    minhash = MinHasher(*s)
+    import numpy as np
+    np.save('mnhsh', minhash)
+    print('MINHASHING FINISHED.')
+    print('START BUCKETING...')
+    # pass to LSH and return
+    print(datetime.datetime.now())  # ##################################### test
+    return LSH(*minhash, bands=bands)
