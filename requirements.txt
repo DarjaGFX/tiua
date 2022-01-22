@@ -2,7 +2,7 @@ ipython==7.9.0
 ipython-genutils==0.2.0
 mongoengine==0.18.2
 networkx==2.3
-numpy==1.16.2
+numpy==1.21.0
 pandas==0.24.2
 pymongo==3.9.0
 python-dateutil==2.8.0
